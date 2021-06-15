@@ -108,3 +108,8 @@ func (g Gun)attack(bodyPart BodyArmor,attacker *Character,defender *Character){
 		defender.Health-=damage
 	}
 }
+
+//random stats, generate full name based on RNG of these stats
+func generateGun(name string,distance int,rof int,damage int,condition int)Gun{
+
+}
