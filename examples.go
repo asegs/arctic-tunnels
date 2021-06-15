@@ -6,7 +6,7 @@ func main(){
 	ar15 := Gun{
 		Name:             "AR15",
 		Calibre:          "5.56 NATO",
-		EffectiveRange:   200,
+		EffectiveRange:   120,
 		MaxDamage:        45,
 		Accuracy:         80,
 		Recoil:           15,
@@ -129,5 +129,5 @@ func main(){
 		Type:             0,
 	}
 
-	fmt.Println(ar15.estimateHitChance(CHEST,&attacker,&defender))
+	fmt.Println(AWP.estimateHitChance(HEAD,&attacker,&defender))
 }

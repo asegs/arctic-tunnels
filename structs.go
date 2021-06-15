@@ -12,6 +12,7 @@ type CharType int
 const MAX_GUN_WEIGHT = 24
 const MAX_GUN_RELOAD_TIME = 4000
 const MAX_GUN_TIME_BETWEEN_SHOTS = 1500
+const BULLET_MISS_HARSHNESS = 1.75
 
 const (
 	OFF LogMode = iota
@@ -212,7 +213,7 @@ func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *
 		return 0.0
 	}
 	distance := calculateDistance(attacker.Location,defender.Location,attacker.isIndoor())
-	distanceModifier := getTargetValueNoDir(0,distance,(3*distance)/g.EffectiveRange,false,g.EffectiveRange)
+	distanceModifier := getTargetValueNoDir(0,distance,(BULLET_MISS_HARSHNESS*distance)/g.EffectiveRange,false,g.EffectiveRange)
 	durabilityModifier := g.Durability/100
 	bodyPartModifier := BODY_HIT_MODIFIERS[bodyPart]
 	probability := aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
@@ -226,7 +227,10 @@ func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *
 		fmt.Printf("Durability modifier: %f\n",durabilityModifier)
 		fmt.Printf("Body part modifier: %f\n",bodyPartModifier)
 	}
-	return aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
+	if probability>=0.99{
+		probability = 0.99
+	}
+	return probability
 
 }
 
