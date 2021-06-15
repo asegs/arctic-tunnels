@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type LogMode int
 
@@ -9,10 +11,7 @@ type ItemType int
 type CharType int
 
 
-const MAX_GUN_WEIGHT = 24
-const MAX_GUN_RELOAD_TIME = 4000
-const MAX_GUN_TIME_BETWEEN_SHOTS = 1500
-const BULLET_MISS_HARSHNESS = 1.75
+
 
 const (
 	OFF LogMode = iota
@@ -28,9 +27,7 @@ const (
 	FEET
 )
 
-var BODY_SCORES = [...]float64{1.5,1.0,0.25,0.35,0.45}
-var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
-var BODY_HIT_MODIFIERS = [...]float64{0.5,2.0,0.65,1.25,1.0}
+
 
 const (
 	WEAPON ItemType = iota
@@ -79,6 +76,8 @@ type Character struct {
 	Vision float64 `json:"vision"`
 
 	Type CharType `json:"type"`
+	
+	Armor [5]Clothing `json:"armor"`
 }
 
 
@@ -112,8 +111,9 @@ type Clothing struct {
 }
 
 type Weapon interface {
-	attack(attacker *Character, defender *Character)
+	attack(bodyPart BodyArmor, attacker *Character, defender *Character)
 	estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *Character)float64
+	calculateDamage(bodyPart BodyArmor,attacker *Character,defender *Character)float64
 }
 
 
@@ -126,12 +126,13 @@ type Gun struct{
 	Recoil float64 `json:"recoil"`
 	TimeBetweenShots float64 `json:"time_between_shots"`
 	ReloadTime float64 `json:"reload_time"`
-	LoadedMagazine Ammo `json:"loaded_magazine"`
+	LoadedMagazine Magazine `json:"loaded_magazine"`
 	Weight float64 `json:"weight"`
 	Durability float64 `json:"durability"`
 }
 
-type Ammo struct {
+type Magazine struct {
+	Rounds int `json:"rounds"`
 	Name string `json:"name"`
 	Calibre string `json:"calibre"`
 	ArmorPiercing float64 `json:"armor_piercing"`
@@ -180,59 +181,7 @@ func (m Modifier) evaluate()float64{
 
 }
 
-func (g Gun)evaluate()int{
-	rangeScore := g.EffectiveRange
-	damageScore := g.MaxDamage
-	accuracyScore := 2.5*(g.Accuracy/100)
-	ROFScore := (MAX_GUN_TIME_BETWEEN_SHOTS+0.2*MAX_GUN_TIME_BETWEEN_SHOTS-g.TimeBetweenShots)/MAX_GUN_TIME_BETWEEN_SHOTS
-	recoilScore := ((110-g.Recoil)/100)/ROFScore
-	reloadScore := (MAX_GUN_RELOAD_TIME+0.2*MAX_GUN_RELOAD_TIME-g.ReloadTime)/MAX_GUN_RELOAD_TIME
-	weightScore := (MAX_GUN_WEIGHT+0.2*MAX_GUN_WEIGHT-g.Weight)/MAX_GUN_WEIGHT
-	durabilityScore := g.Durability/100
-	price := int(rangeScore*damageScore*accuracyScore*ROFScore*recoilScore*reloadScore*weightScore*durabilityScore)
-	if LOG_MODE >=1{
-		fmt.Printf("Valued %s at %d%c\n",g.Name,price,RUBLE)
-	}
-	if LOG_MODE==DEBUG{
-		fmt.Printf("Range score: %f\n",rangeScore)
-		fmt.Printf("Damage score: %f\n",damageScore)
-		fmt.Printf("Accuracy score: %f\n",accuracyScore)
-		fmt.Printf("Recoil score: %f\n",recoilScore)
-		fmt.Printf("Rate of fire score: %f\n",ROFScore)
-		fmt.Printf("Reload speed score: %f\n",reloadScore)
-		fmt.Printf("Weight score: %f\n",weightScore)
-		fmt.Printf("Durability score: %f\n",durabilityScore)
-		fmt.Println()
-	}
-	return price
-}
 
-func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *Character)float64{
-	aimModifier := attacker.Aim/100
-	if attacker.isIndoor()!=defender.isIndoor(){
-		return 0.0
-	}
-	distance := calculateDistance(attacker.Location,defender.Location,attacker.isIndoor())
-	distanceModifier := getTargetValueNoDir(0,distance,(BULLET_MISS_HARSHNESS*distance)/g.EffectiveRange,false,g.EffectiveRange)
-	durabilityModifier := g.Durability/100
-	bodyPartModifier := BODY_HIT_MODIFIERS[bodyPart]
-	probability := aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
-	if LOG_MODE>=1{
-		fmt.Printf("Shot success probability: %f\n",probability)
-	}
-	if LOG_MODE==DEBUG{
-		fmt.Printf("Aim modifier: %f\n",aimModifier)
-		fmt.Printf("Distance: %f\n",distance)
-		fmt.Printf("Distance modifier: %f\n",distanceModifier)
-		fmt.Printf("Durability modifier: %f\n",durabilityModifier)
-		fmt.Printf("Body part modifier: %f\n",bodyPartModifier)
-	}
-	if probability>=0.99{
-		probability = 0.99
-	}
-	return probability
-
-}
 
 func (c Clothing)evaluate()int{
 	coldScore := 3.0*(c.ColdProtection/100)
@@ -283,6 +232,8 @@ func (c Clothing)sell(seller *Character,buyer *Character){
 		Type: CLOTHING,
 	})
 }
+
+//if shot misses, chance of hitting other part (go down the line, most likely to least likely, each time multiply by 0.5 prob
 
 
 
