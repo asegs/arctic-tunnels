@@ -1,6 +1,8 @@
 package main
 
-func show(){
+import "fmt"
+
+func main(){
 	ar15 := Gun{
 		Name:             "AR15",
 		Calibre:          "5.56 NATO",
@@ -76,4 +78,56 @@ func show(){
 		Modifier:        Modifier{},
 	}
 	exoskeleton.evaluate()
+
+	attacker := Character{
+		Name:             "",
+		DefaultHealth:    0,
+		Health:           0,
+		Hunger:           0,
+		Thirst:           0,
+		Rubles:           0,
+		Inventory:        nil,
+		Weight:           0,
+		CarryingCapacity: 0,
+		Stamina:          0,
+		Location:         Coordinate{
+			Row: 5,
+			Col: 5,
+		},
+		IndoorLocation:   IndoorCoordinate{},
+		LandSpeed:        0,
+		SnowSpeed:        0,
+		ClimbSpeed:       0,
+		Aim:              80,
+		Dodge:            0,
+		Vision:           0,
+		Type:             0,
+	}
+
+	defender := Character{
+		Name:             "",
+		DefaultHealth:    0,
+		Health:           0,
+		Hunger:           0,
+		Thirst:           0,
+		Rubles:           0,
+		Inventory:        nil,
+		Weight:           0,
+		CarryingCapacity: 0,
+		Stamina:          0,
+		Location:         Coordinate{
+			Row: 12,
+			Col: 16,
+		},
+		IndoorLocation:   IndoorCoordinate{},
+		LandSpeed:        0,
+		SnowSpeed:        0,
+		ClimbSpeed:       0,
+		Aim:              0,
+		Dodge:            0,
+		Vision:           0,
+		Type:             0,
+	}
+
+	fmt.Println(ar15.estimateHitChance(CHEST,&attacker,&defender))
 }

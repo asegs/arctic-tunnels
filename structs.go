@@ -29,6 +29,7 @@ const (
 
 var BODY_SCORES = [...]float64{1.5,1.0,0.25,0.35,0.45}
 var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
+var BODY_HIT_MODIFIERS = [...]float64{0.5,2.0,0.65,1.25,1.0}
 
 const (
 	WEAPON ItemType = iota
@@ -64,6 +65,8 @@ type Character struct {
 	Weight float64 `json:"weight"`
 	CarryingCapacity float64 `json:"carrying_capacity"`
 	Stamina float64 `json:"stamina"`
+	Location Coordinate `json:"location"`
+	IndoorLocation IndoorCoordinate `json:"indoor_location"`
 
 	LandSpeed float64 `json:"land_speed"`
 	SnowSpeed float64 `json:"snow_speed"`
@@ -109,6 +112,7 @@ type Clothing struct {
 
 type Weapon interface {
 	attack(attacker *Character, defender *Character)
+	estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *Character)float64
 }
 
 
@@ -153,6 +157,14 @@ type IndoorCoordinate struct {
 	RoomLocation Coordinate `json:"room_location"`
 }
 
+func (c Coordinate)isNull()bool{
+	return c.Col==-1 || c.Row==-1
+}
+
+func (p Character)isIndoor()bool{
+	return p.Location.isNull()
+}
+
 type Place struct {
 
 }
@@ -192,6 +204,30 @@ func (g Gun)evaluate()int{
 		fmt.Println()
 	}
 	return price
+}
+
+func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *Character)float64{
+	aimModifier := attacker.Aim/100
+	if attacker.isIndoor()!=defender.isIndoor(){
+		return 0.0
+	}
+	distance := calculateDistance(attacker.Location,defender.Location,attacker.isIndoor())
+	distanceModifier := getTargetValueNoDir(0,distance,(3*distance)/g.EffectiveRange,false,g.EffectiveRange)
+	durabilityModifier := g.Durability/100
+	bodyPartModifier := BODY_HIT_MODIFIERS[bodyPart]
+	probability := aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
+	if LOG_MODE>=1{
+		fmt.Printf("Shot success probability: %f\n",probability)
+	}
+	if LOG_MODE==DEBUG{
+		fmt.Printf("Aim modifier: %f\n",aimModifier)
+		fmt.Printf("Distance: %f\n",distance)
+		fmt.Printf("Distance modifier: %f\n",distanceModifier)
+		fmt.Printf("Durability modifier: %f\n",durabilityModifier)
+		fmt.Printf("Body part modifier: %f\n",bodyPartModifier)
+	}
+	return aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
+
 }
 
 func (c Clothing)evaluate()int{
