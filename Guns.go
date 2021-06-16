@@ -126,7 +126,6 @@ func (g Gun)attack(bodyPart BodyArmor,attacker *Character,defender *Character){
 	}
 	hitChance := g.estimateHitChance(bodyPart,attacker,defender)
 	roll := r1.Float64()
-	fmt.Printf("Roll: %f\n",roll)
 	if roll<=hitChance{
 		damage := g.calculateDamage(bodyPart,attacker,defender)
 		g.LoadedMagazine.Rounds--

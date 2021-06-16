@@ -108,7 +108,7 @@ func main(){
 		Dodge:            0,
 		Vision:           0,
 		Type:             0,
-		Armor: t,
+		Armor: a,
 	}
 
 	defender := Character{
@@ -134,7 +134,7 @@ func main(){
 		Dodge:            0,
 		Vision:           0,
 		Type:             0,
-		Armor: a,
+		Armor: t,
 	}
 
 	ak := gunCreateStandardAK()
