@@ -134,7 +134,7 @@ func generateStatFromTable(mod float64,calibreArr [l]float64,calibreIdx int)(flo
 func generateStat(base float64)(float64,float64){
 	statVal := pickRandomVariedAround(base,NEW_GUN_VARIABILITY)
 	lowDefault,highDefault := getAroundRange(base,NEW_GUN_VARIABILITY)
-	statDeviation := deviationFromCenter(lowDefault,highDefault,NEW_GUN_VARIABILITY)
+	statDeviation := deviationFromCenter(lowDefault,highDefault,statVal)
 	return statVal,statDeviation
 }
 
