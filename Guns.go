@@ -17,7 +17,7 @@ var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
 var BODY_HIT_MODIFIERS = [...]float64{0.5,2.0,0.65,1.25,1.0}
 var BODY_DAMAGE_MODIFIERS = [...]float64{3.0,1.25,0.6,0.5,0.35}
 
-var GUN_NAME_MODIFIERS = [...]string{"Short-Barrel","Long-Barrel","Light","Hard-Hitting","Imprecise","Sniper","Jerky","Smooth","Stiff","Easy-Use","Light","Sturdy","Rapid-Firing","Slow-Firing"}
+var GUN_NAME_MODIFIERS = [...]string{"Short-Barrel","Long-Barrel","Light","Hard-Hitting","Imprecise","Sniper","Jerky","Smooth","Easy-Use","Stiff","Light","Sturdy","Rapid-Firing","Slow-Firing"}
 var CONDITIONS = [...]string{"Mint","Well Cared For","Solid","Rusty","Beater","Broken"}
 
 //calibre information

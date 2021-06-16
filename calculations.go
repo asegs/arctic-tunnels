@@ -83,7 +83,6 @@ func signToOne(num float64)int{
 
 //not always working...
 func MaxIndex(m float64,values ... float64)int{
-	fmt.Println(values)
 	for i,value := range values {
 		absValue := math.Abs(value)
 		if absValue==m{
