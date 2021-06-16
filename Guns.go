@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -76,9 +77,9 @@ func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Ch
 	distanceModifier := getTargetValueNoDir(0,distance,(BULLET_MISS_HARSHNESS*distance)/g.EffectiveRange,false,g.EffectiveRange)
 	baseDamage := g.MaxDamage
 	armorDurability := defender.Armor[bodyPart].Durability/100
-	//factor in gun's current ammo armor piercing, less dmg for unarmored, more for armored
-	bulletproofModifier := (100-defender.Armor[bodyPart].Bulletproof*armorDurability)/100
-	damage := baseDamage*dmgModifier*distanceModifier*bulletproofModifier
+	bulletproofModifier := (100-defender.Armor[bodyPart].Bulletproof*(armorDurability/100))/100
+	bulletAppropriateModifier := math.Abs(g.LoadedMagazine.ArmorPiercing-bulletproofModifier*100)/100
+	damage := baseDamage*dmgModifier*distanceModifier*bulletproofModifier*bulletAppropriateModifier
 	if LOG_MODE>=1{
 		fmt.Printf("%s did %f damage to %s",attacker.Name,damage,defender.Name)
 	}
@@ -89,6 +90,7 @@ func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Ch
 		fmt.Printf("Base damage: %f\n",baseDamage)
 		fmt.Printf("Armor durability: %f\n",armorDurability)
 		fmt.Printf("Bulletproof modifier: %f\n",bulletproofModifier)
+		fmt.Printf("Bullet appropriate modifier: %f\n",bulletAppropriateModifier)
 	}
 
 	return damage

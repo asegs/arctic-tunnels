@@ -41,3 +41,10 @@ func calculateDistance(c1 Coordinate,c2 Coordinate,indoor bool)float64{
 	return math.Sqrt(float64((c1.Col*OUTDOOR_COORD_WIDTH-c2.Col*OUTDOOR_COORD_WIDTH)*(c1.Col*OUTDOOR_COORD_WIDTH-c2.Col*OUTDOOR_COORD_WIDTH) + (c1.Row*OUTDOOR_COORD_WIDTH-c2.Row*OUTDOOR_COORD_WIDTH)*(c1.Row*OUTDOOR_COORD_WIDTH-c2.Row*OUTDOOR_COORD_WIDTH)))
 }
 
+func intAbs(i int)int{
+	if i<0 {
+		return i * -1
+	}
+	return i
+}
+
