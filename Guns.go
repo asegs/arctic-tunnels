@@ -11,6 +11,7 @@ const MAX_GUN_RELOAD_TIME = 4000
 const MAX_GUN_TIME_BETWEEN_SHOTS = 1500
 const BULLET_MISS_HARSHNESS = 1.75
 const NEW_GUN_VARIABILITY = 0.2
+const BULLETPROOF_APPROPRIATE_MODIFIER = 0.5
 
 var BODY_SCORES = [...]float64{1.5,1.0,0.25,0.35,0.45}
 var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
@@ -92,7 +93,8 @@ func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Ch
 	//bulletproof/appropriate same thing, not sep vals
 	bulletproofModifier := (100-defender.Armor[bodyPart].Bulletproof*(armorDurability))/100
 	bulletAppropriateModifier := math.Abs(g.LoadedMagazine.ArmorPiercing-bulletproofModifier*100)/100
-	damage := baseDamage*dmgModifier*distanceModifier*bulletproofModifier*bulletAppropriateModifier
+	bulletproofModifier = bulletproofModifier+bulletAppropriateModifier*BULLETPROOF_APPROPRIATE_MODIFIER
+	damage := baseDamage*dmgModifier*distanceModifier*bulletproofModifier
 	if LOG_MODE>=1{
 		fmt.Printf("%s did %f damage to %s\n",attacker.Name,damage,defender.Name)
 	}
