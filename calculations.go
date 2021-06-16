@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"math/rand"
 )
 
 const OUTDOOR_COORD_WIDTH = 10
@@ -48,3 +49,47 @@ func intAbs(i int)int{
 	return i
 }
 
+func deviationFromCenter(lowerBound float64,upperBound float64,pick float64)float64{
+	return (pick-(lowerBound+upperBound)/2)/(upperBound-lowerBound)
+}
+
+func pickRandomInRange(lowerBound float64,upperBound float64)float64{
+	return rand.Float64()*(upperBound-lowerBound)+lowerBound
+}
+
+func pickRandomVariedAround(center float64,variability float64)float64{
+	return pickRandomInRange(getAroundRange(center,variability))
+}
+
+func getAroundRange(center float64,variability float64)(float64,float64){
+	return center*(1-variability),center*(1+variability)
+}
+
+func MaxOf(vars ...float64) float64 {
+	max := math.Abs(vars[0])
+
+	for _, i := range vars {
+		if max < math.Abs(i) {
+			max = math.Abs(i)
+		}
+	}
+
+	return max
+}
+
+func signToOne(num float64)int{
+	return int(num/math.Abs(num))
+}
+
+func MaxIndex(m float64,values ... float64)int{
+	for i,value := range values {
+		absValue := math.Abs(value)
+		if absValue==m{
+			if absValue != value {
+				return i*2
+			}
+			return i*2+1
+		}
+	}
+	return -1
+}

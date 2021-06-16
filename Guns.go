@@ -10,13 +10,14 @@ const MAX_GUN_WEIGHT = 24
 const MAX_GUN_RELOAD_TIME = 4000
 const MAX_GUN_TIME_BETWEEN_SHOTS = 1500
 const BULLET_MISS_HARSHNESS = 1.75
+const NEW_GUN_VARIABILITY = 0.2
 
 var BODY_SCORES = [...]float64{1.5,1.0,0.25,0.35,0.45}
 var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
 var BODY_HIT_MODIFIERS = [...]float64{0.5,2.0,0.65,1.25,1.0}
 var BODY_DAMAGE_MODIFIERS = [...]float64{3.0,1.25,0.6,0.5,0.35}
 
-var GUN_NAME_MODIFIERS = [...]string{"Short-Barrel","Long-Barrel","Light","Hard-Hitting","Imprecise","Sniper","Jerky","Smooth","Easy-Use","Stiff","Light","Sturdy"}
+var GUN_NAME_MODIFIERS = [...]string{"Short-Barrel","Long-Barrel","Light","Hard-Hitting","Imprecise","Sniper","Jerky","Smooth","Stiff","Easy-Use","Light","Sturdy","Rapid-Firing","Slow-Firing"}
 var CONDITIONS = [...]string{"Mint","Well Cared For","Solid","Rusty","Beater","Broken"}
 
 //calibre information
@@ -25,6 +26,8 @@ const l = len(CALIBRES)
 var CALIBRE_BASE_RANGE = [l]float64{75.0,100.0,220.0,280.0,500.0,120.0,1200.0,1750.0,500.0}
 var CALIBRE_BASE_DAMAGE = [l]float64{15.0,45.0,68.0,77.0,105.0,60.0,155.0,210.0,95.0}
 var CALIBRE_RECOIL_LEVEL = [l]float64{3.0,25.0,31.0,55.0,72.0,52.0,90.0,100.0,39.0}
+
+//add ammo characteristics with names and modifiers
 
 func (g Gun)evaluate()int{
 	rangeScore := g.EffectiveRange
@@ -120,7 +123,57 @@ func (g Gun)attack(bodyPart BodyArmor,attacker *Character,defender *Character){
 	}
 }
 
+func generateStatFromTable(mod float64,calibreArr [l]float64,calibreIdx int)(float64,float64){
+	baseStat := calibreArr[calibreIdx]
+	statVal := pickRandomVariedAround(baseStat*mod,NEW_GUN_VARIABILITY)
+	lowDefault,highDefault := getAroundRange(baseStat,NEW_GUN_VARIABILITY)
+	statDeviation := deviationFromCenter(lowDefault,highDefault,statVal)
+	return statVal,statDeviation
+}
+
+func generateStat(base float64)(float64,float64){
+	statVal := pickRandomVariedAround(base,NEW_GUN_VARIABILITY)
+	lowDefault,highDefault := getAroundRange(base,NEW_GUN_VARIABILITY)
+	statDeviation := deviationFromCenter(lowDefault,highDefault,NEW_GUN_VARIABILITY)
+	return statVal,statDeviation
+}
+
 //random stats, generate full name based on RNG of these stats
-func generateGun(baseName string,calibreIdx int,distanceMod float64,rof int,damageMod float64,condition int,accuracy int)Gun{
+func generateGun(baseName string,calibreIdx int,distanceMod float64,timeToShoot float64,damageMod float64,condition float64,baseAccuracy float64,baseReloadTime float64,baseWeight float64)Gun{
+
+	effRange,rangeDeviation := generateStatFromTable(distanceMod,CALIBRE_BASE_RANGE,calibreIdx)
+	effDmg,dmgDeviation := generateStatFromTable(damageMod,CALIBRE_BASE_DAMAGE,calibreIdx)
+	effAccuracy,accuracyDeviation := generateStat(baseAccuracy)
+	effRecoil,recoilDeviation := generateStatFromTable(1.0,CALIBRE_RECOIL_LEVEL,calibreIdx)
+	effReloadTime,reloadDeviation := generateStat(baseReloadTime)
+	effWeight,weightDeviation := generateStat(baseWeight)
+	effTimeBetweenShots,betweenDeviation := generateStat(timeToShoot)
+	effCondition,_ := generateStat(condition)
+
+	deviationMaximum := MaxOf(rangeDeviation,dmgDeviation,recoilDeviation,accuracyDeviation,weightDeviation,reloadDeviation,betweenDeviation)
+
+	maxIndexValue := MaxIndex(deviationMaximum,rangeDeviation,dmgDeviation,recoilDeviation,accuracyDeviation,weightDeviation,reloadDeviation,betweenDeviation)
+	fullName := GUN_NAME_MODIFIERS[maxIndexValue]+" "+baseName
+
+	return Gun{
+		Name:             fullName,
+		Calibre:          CALIBRES[calibreIdx],
+		EffectiveRange:   effRange,
+		MaxDamage:        effDmg,
+		Accuracy:         effAccuracy,
+		Recoil:           effRecoil,
+		TimeBetweenShots: effTimeBetweenShots,
+		ReloadTime:       effReloadTime,
+		LoadedMagazine:   Magazine{
+			Rounds:        0,
+			Name:          "Empty "+CALIBRES[calibreIdx]+" magazine",
+			Calibre:       CALIBRES[calibreIdx],
+			ArmorPiercing: 0,
+		},
+		Weight:           effWeight,
+		Durability:       effCondition,
+	}
+
+
 
 }
