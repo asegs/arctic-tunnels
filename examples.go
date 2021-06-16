@@ -12,7 +12,7 @@ func main(){
 		Recoil:           15,
 		TimeBetweenShots: 250,
 		ReloadTime:       2000,
-		LoadedMagazine:   Ammo{},
+		LoadedMagazine:   Magazine{},
 		Weight:           12,
 		Durability:       85,
 	}
@@ -27,7 +27,7 @@ func main(){
 		Recoil:           80,
 		TimeBetweenShots: 100,
 		ReloadTime:       1600,
-		LoadedMagazine:   Ammo{},
+		LoadedMagazine:   Magazine{},
 		Weight:           10,
 		Durability:       85,
 	}
@@ -41,7 +41,7 @@ func main(){
 		Recoil:           100,
 		TimeBetweenShots: 1200,
 		ReloadTime:       3000,
-		LoadedMagazine:   Ammo{},
+		LoadedMagazine:   Magazine{},
 		Weight:           20,
 		Durability:       100,
 	}
@@ -130,4 +130,10 @@ func main(){
 	}
 
 	fmt.Println(AWP.estimateHitChance(HEAD,&attacker,&defender))
+
+	newAK := generateGun("AK47",3,1.0,80.0,1.0,80.0,55.0,1400.0,10.0)
+	fmt.Println(newAK.Name)
+	fmt.Println(newAK)
+	nAk := generateGun("AK47",3,1.0,80.0,1.0,80.0,55.0,1400.0,10.0)
+	fmt.Println(nAk.Name)
 }

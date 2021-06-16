@@ -155,6 +155,18 @@ func generateGun(baseName string,calibreIdx int,distanceMod float64,timeToShoot 
 	maxIndexValue := MaxIndex(deviationMaximum,rangeDeviation,dmgDeviation,recoilDeviation,accuracyDeviation,weightDeviation,reloadDeviation,betweenDeviation)
 	fullName := GUN_NAME_MODIFIERS[maxIndexValue]+" "+baseName
 
+	if LOG_MODE==DEBUG{
+		fmt.Printf("Range deviation: %f\n",rangeDeviation)
+		fmt.Printf("Damage deviation: %f\n",dmgDeviation)
+		fmt.Printf("Accuracy deviation: %f\n",accuracyDeviation)
+		fmt.Printf("Recoil deviation: %f\n",recoilDeviation)
+		fmt.Printf("Reload deviation: %f\n",reloadDeviation)
+		fmt.Printf("Weight deviation: %f\n",weightDeviation)
+		fmt.Printf("ROF deviation: %f\n",betweenDeviation)
+		fmt.Println()
+
+	}
+
 	return Gun{
 		Name:             fullName,
 		Calibre:          CALIBRES[calibreIdx],
