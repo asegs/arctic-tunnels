@@ -152,7 +152,7 @@ func generateGun(baseName string,calibreIdx int,distanceMod float64,timeToShoot 
 
 	deviationMaximum := MaxOf(rangeDeviation,dmgDeviation,recoilDeviation,accuracyDeviation,weightDeviation,reloadDeviation,betweenDeviation)
 
-	maxIndexValue := MaxIndex(deviationMaximum,rangeDeviation,dmgDeviation,recoilDeviation,accuracyDeviation,weightDeviation,reloadDeviation,betweenDeviation)
+	maxIndexValue := MaxIndex(deviationMaximum,rangeDeviation,dmgDeviation,recoilDeviation,accuracyDeviation,reloadDeviation,weightDeviation,betweenDeviation)
 	fullName := GUN_NAME_MODIFIERS[maxIndexValue]+" "+baseName
 
 	if LOG_MODE==DEBUG{
@@ -188,4 +188,16 @@ func generateGun(baseName string,calibreIdx int,distanceMod float64,timeToShoot 
 
 
 
+}
+
+func gunCreateStandardAK()Gun{
+	return generateGun("AK47",3,1.0,80.0,1.0,80.0,55.0,1400.0,10.0)
+}
+
+func gunCreateStandardAR()Gun{
+	return generateGun("M4",2,1.0,95,1.0,80.0,85.0,1600.0,8.0)
+}
+
+func gunCreateStandardSniper()Gun{
+	return generateGun(".308 Winchester",4,1.0,800,1.0,80.0,90.0,2200.0,9.0)
 }

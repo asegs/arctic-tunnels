@@ -79,61 +79,64 @@ func main(){
 	}
 	exoskeleton.evaluate()
 
-	attacker := Character{
-		Name:             "",
-		DefaultHealth:    0,
-		Health:           0,
-		Hunger:           0,
-		Thirst:           0,
-		Rubles:           0,
-		Inventory:        nil,
-		Weight:           0,
-		CarryingCapacity: 0,
-		Stamina:          0,
-		Location:         Coordinate{
-			Row: 5,
-			Col: 5,
-		},
-		IndoorLocation:   IndoorCoordinate{},
-		LandSpeed:        0,
-		SnowSpeed:        0,
-		ClimbSpeed:       0,
-		Aim:              80,
-		Dodge:            0,
-		Vision:           0,
-		Type:             0,
-	}
+	//attacker := Character{
+	//	Name:             "",
+	//	DefaultHealth:    0,
+	//	Health:           0,
+	//	Hunger:           0,
+	//	Thirst:           0,
+	//	Rubles:           0,
+	//	Inventory:        nil,
+	//	Weight:           0,
+	//	CarryingCapacity: 0,
+	//	Stamina:          0,
+	//	Location:         Coordinate{
+	//		Row: 5,
+	//		Col: 5,
+	//	},
+	//	IndoorLocation:   IndoorCoordinate{},
+	//	LandSpeed:        0,
+	//	SnowSpeed:        0,
+	//	ClimbSpeed:       0,
+	//	Aim:              80,
+	//	Dodge:            0,
+	//	Vision:           0,
+	//	Type:             0,
+	//}
+	//
+	//defender := Character{
+	//	Name:             "",
+	//	DefaultHealth:    0,
+	//	Health:           0,
+	//	Hunger:           0,
+	//	Thirst:           0,
+	//	Rubles:           0,
+	//	Inventory:        nil,
+	//	Weight:           0,
+	//	CarryingCapacity: 0,
+	//	Stamina:          0,
+	//	Location:         Coordinate{
+	//		Row: 12,
+	//		Col: 16,
+	//	},
+	//	IndoorLocation:   IndoorCoordinate{},
+	//	LandSpeed:        0,
+	//	SnowSpeed:        0,
+	//	ClimbSpeed:       0,
+	//	Aim:              0,
+	//	Dodge:            0,
+	//	Vision:           0,
+	//	Type:             0,
+	//}
 
-	defender := Character{
-		Name:             "",
-		DefaultHealth:    0,
-		Health:           0,
-		Hunger:           0,
-		Thirst:           0,
-		Rubles:           0,
-		Inventory:        nil,
-		Weight:           0,
-		CarryingCapacity: 0,
-		Stamina:          0,
-		Location:         Coordinate{
-			Row: 12,
-			Col: 16,
-		},
-		IndoorLocation:   IndoorCoordinate{},
-		LandSpeed:        0,
-		SnowSpeed:        0,
-		ClimbSpeed:       0,
-		Aim:              0,
-		Dodge:            0,
-		Vision:           0,
-		Type:             0,
-	}
+	fmt.Println(gunCreateStandardAR())
+	fmt.Println(gunCreateStandardAK())
+	fmt.Println(gunCreateStandardSniper())
+	fmt.Println(gunCreateStandardAR())
+	fmt.Println(gunCreateStandardAK())
+	fmt.Println(gunCreateStandardSniper())
+	fmt.Println(gunCreateStandardAR())
+	fmt.Println(gunCreateStandardAK())
+	fmt.Println(gunCreateStandardSniper())
 
-	fmt.Println(AWP.estimateHitChance(HEAD,&attacker,&defender))
-
-	newAK := generateGun("AK47",3,1.0,80.0,1.0,80.0,55.0,1400.0,10.0)
-	fmt.Println(newAK.Name)
-	fmt.Println(newAK)
-	nAk := generateGun("AK47",3,1.0,80.0,1.0,80.0,55.0,1400.0,10.0)
-	fmt.Println(nAk.Name)
 }
