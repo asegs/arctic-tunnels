@@ -73,70 +73,68 @@ func main(){
 		Bulletproof:     100,
 		MeleeProtection: 100,
 		Weight:          40,
-		Durability:      100,
+		Durability:      90,
 		BodyPart:        CHEST,
 		Modifier:        Modifier{},
 	}
 	exoskeleton.evaluate()
 
-	//attacker := Character{
-	//	Name:             "",
-	//	DefaultHealth:    0,
-	//	Health:           0,
-	//	Hunger:           0,
-	//	Thirst:           0,
-	//	Rubles:           0,
-	//	Inventory:        nil,
-	//	Weight:           0,
-	//	CarryingCapacity: 0,
-	//	Stamina:          0,
-	//	Location:         Coordinate{
-	//		Row: 5,
-	//		Col: 5,
-	//	},
-	//	IndoorLocation:   IndoorCoordinate{},
-	//	LandSpeed:        0,
-	//	SnowSpeed:        0,
-	//	ClimbSpeed:       0,
-	//	Aim:              80,
-	//	Dodge:            0,
-	//	Vision:           0,
-	//	Type:             0,
-	//}
-	//
-	//defender := Character{
-	//	Name:             "",
-	//	DefaultHealth:    0,
-	//	Health:           0,
-	//	Hunger:           0,
-	//	Thirst:           0,
-	//	Rubles:           0,
-	//	Inventory:        nil,
-	//	Weight:           0,
-	//	CarryingCapacity: 0,
-	//	Stamina:          0,
-	//	Location:         Coordinate{
-	//		Row: 12,
-	//		Col: 16,
-	//	},
-	//	IndoorLocation:   IndoorCoordinate{},
-	//	LandSpeed:        0,
-	//	SnowSpeed:        0,
-	//	ClimbSpeed:       0,
-	//	Aim:              0,
-	//	Dodge:            0,
-	//	Vision:           0,
-	//	Type:             0,
-	//}
+	a := [5]Clothing{{},exoskeleton,{},{},{}}
+	//t := [5]Clothing{{},tshirt,{},{},{}}
 
-	fmt.Println(gunCreateStandardAR())
-	fmt.Println(gunCreateStandardAK())
-	fmt.Println(gunCreateStandardSniper())
-	fmt.Println(gunCreateStandardAR())
-	fmt.Println(gunCreateStandardAK())
-	fmt.Println(gunCreateStandardSniper())
-	fmt.Println(gunCreateStandardAR())
-	fmt.Println(gunCreateStandardAK())
-	fmt.Println(gunCreateStandardSniper())
+	attacker := Character{
+		Name:             "",
+		DefaultHealth:    0,
+		Health:           0,
+		Hunger:           0,
+		Thirst:           0,
+		Rubles:           0,
+		Inventory:        nil,
+		Weight:           0,
+		CarryingCapacity: 0,
+		Stamina:          0,
+		Location:         Coordinate{
+			Row: 5,
+			Col: 5,
+		},
+		IndoorLocation:   IndoorCoordinate{},
+		LandSpeed:        0,
+		SnowSpeed:        0,
+		ClimbSpeed:       0,
+		Aim:              80,
+		Dodge:            0,
+		Vision:           0,
+		Type:             0,
+		Armor: a,
+	}
 
+	defender := Character{
+		Name:             "",
+		DefaultHealth:    0,
+		Health:           0,
+		Hunger:           0,
+		Thirst:           0,
+		Rubles:           0,
+		Inventory:        nil,
+		Weight:           0,
+		CarryingCapacity: 0,
+		Stamina:          0,
+		Location:         Coordinate{
+			Row: 12,
+			Col: 16,
+		},
+		IndoorLocation:   IndoorCoordinate{},
+		LandSpeed:        0,
+		SnowSpeed:        0,
+		ClimbSpeed:       0,
+		Aim:              0,
+		Dodge:            0,
+		Vision:           0,
+		Type:             0,
+		Armor: a,
+	}
+
+	ak := gunCreateStandardAK()
+	fmt.Println(ak)
+	ak.calculateDamage(CHEST,&attacker,&defender)
 }

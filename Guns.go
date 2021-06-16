@@ -23,7 +23,7 @@ var CONDITIONS = [...]string{"Mint","Well Cared For","Solid","Rusty","Beater","B
 //calibre information
 var CALIBRES = [...]string{".22 LR","9mm","5.56 NATO","7.62x39","7.62 NATO",".45 ACP",".338 Lapua",".50 BMG","6.5 Creedmoor"}
 const l = len(CALIBRES)
-var CALIBRE_BASE_RANGE = [l]float64{75.0,100.0,220.0,280.0,500.0,120.0,1200.0,1750.0,500.0}
+var CALIBRE_BASE_RANGE = [l]float64{75.0,100.0,220.0,250.0,500.0,120.0,1200.0,1750.0,500.0}
 var CALIBRE_BASE_DAMAGE = [l]float64{15.0,45.0,68.0,77.0,105.0,60.0,155.0,210.0,95.0}
 var CALIBRE_RECOIL_LEVEL = [l]float64{3.0,25.0,31.0,55.0,72.0,52.0,90.0,100.0,39.0}
 
@@ -89,11 +89,12 @@ func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Ch
 	distanceModifier := getTargetValueNoDir(0,distance,(BULLET_MISS_HARSHNESS*distance)/g.EffectiveRange,false,g.EffectiveRange)
 	baseDamage := g.MaxDamage
 	armorDurability := defender.Armor[bodyPart].Durability/100
-	bulletproofModifier := (100-defender.Armor[bodyPart].Bulletproof*(armorDurability/100))/100
+	//bulletproof/appropriate same thing, not sep vals
+	bulletproofModifier := (100-defender.Armor[bodyPart].Bulletproof*(armorDurability))/100
 	bulletAppropriateModifier := math.Abs(g.LoadedMagazine.ArmorPiercing-bulletproofModifier*100)/100
 	damage := baseDamage*dmgModifier*distanceModifier*bulletproofModifier*bulletAppropriateModifier
 	if LOG_MODE>=1{
-		fmt.Printf("%s did %f damage to %s",attacker.Name,damage,defender.Name)
+		fmt.Printf("%s did %f damage to %s\n",attacker.Name,damage,defender.Name)
 	}
 	if LOG_MODE==DEBUG{
 		fmt.Printf("Body part damage modifier: %f\n",dmgModifier)
