@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"math/rand"
 )
 
 const OUTDOOR_COORD_WIDTH = 10
@@ -54,7 +53,7 @@ func deviationFromCenter(lowerBound float64,upperBound float64,pick float64)floa
 }
 
 func pickRandomInRange(lowerBound float64,upperBound float64)float64{
-	return rand.Float64()*(upperBound-lowerBound)+lowerBound
+	return r1.Float64()*(upperBound-lowerBound)+lowerBound
 }
 
 func pickRandomVariedAround(center float64,variability float64)float64{

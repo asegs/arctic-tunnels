@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 type LogMode int
@@ -10,7 +12,8 @@ type BodyArmor int
 type ItemType int
 type CharType int
 
-
+var s1 = rand.NewSource(time.Now().UnixNano())
+var r1 = rand.New(s1)
 
 
 const (
@@ -47,7 +50,7 @@ const (
 )
 
 
-const LOG_MODE = LogMode(DEBUG)
+const LOG_MODE = BASIC
 
 const RUBLE = '₽'
 

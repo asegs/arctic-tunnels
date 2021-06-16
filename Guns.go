@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math"
-	"math/rand"
 )
 
 const MAX_GUN_WEIGHT = 24
@@ -12,6 +11,7 @@ const MAX_GUN_TIME_BETWEEN_SHOTS = 1500
 const BULLET_MISS_HARSHNESS = 1.75
 const NEW_GUN_VARIABILITY = 0.2
 const BULLETPROOF_APPROPRIATE_MODIFIER = 0.5
+const DAMAGE_RANDOMNESS = 0.1
 
 var BODY_SCORES = [...]float64{1.5,1.0,0.25,0.35,0.45}
 var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
@@ -67,6 +67,9 @@ func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *
 	durabilityModifier := g.Durability/100
 	bodyPartModifier := BODY_HIT_MODIFIERS[bodyPart]
 	probability := aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
+	if probability>=0.99{
+		probability = 0.99
+	}
 	if LOG_MODE>=1{
 		fmt.Printf("Shot success probability: %f\n",probability)
 	}
@@ -76,9 +79,6 @@ func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *
 		fmt.Printf("Distance modifier: %f\n",distanceModifier)
 		fmt.Printf("Durability modifier: %f\n",durabilityModifier)
 		fmt.Printf("Body part modifier: %f\n",bodyPartModifier)
-	}
-	if probability>=0.99{
-		probability = 0.99
 	}
 	return probability
 
@@ -95,6 +95,10 @@ func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Ch
 	bulletAppropriateModifier := math.Abs(g.LoadedMagazine.ArmorPiercing-bulletproofModifier*100)/100
 	bulletproofModifier = bulletproofModifier+bulletAppropriateModifier*BULLETPROOF_APPROPRIATE_MODIFIER
 	damage := baseDamage*dmgModifier*distanceModifier*bulletproofModifier
+	damage = pickRandomVariedAround(damage,DAMAGE_RANDOMNESS)
+	if damage<0{
+		damage = 0
+	}
 	if LOG_MODE>=1{
 		fmt.Printf("%s did %f damage to %s\n",attacker.Name,damage,defender.Name)
 	}
@@ -112,17 +116,25 @@ func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Ch
 }
 
 //redo attack methods as attacker.attack(bp,weapon,defender)
+//hit chance too high, why not 0.99?
+//action to come to stop and line up shot, status of any character as stopped (by doing any non move action)
+//degrades armor durability on any hit
 func (g Gun)attack(bodyPart BodyArmor,attacker *Character,defender *Character){
 	if g.LoadedMagazine.Rounds==0{
 		//need to reload!
 		return
 	}
 	hitChance := g.estimateHitChance(bodyPart,attacker,defender)
-	roll := rand.Float64()
+	roll := r1.Float64()
+	fmt.Printf("Roll: %f\n",roll)
 	if roll<=hitChance{
 		damage := g.calculateDamage(bodyPart,attacker,defender)
 		g.LoadedMagazine.Rounds--
 		defender.Health-=damage
+	}else{
+		if LOG_MODE>=1{
+			fmt.Printf("Missed shot with %f probability\n",hitChance)
+		}
 	}
 }
 
@@ -181,7 +193,7 @@ func generateGun(baseName string,calibreIdx int,distanceMod float64,timeToShoot 
 		ReloadTime:       effReloadTime,
 		LoadedMagazine:   Magazine{
 			Rounds:        0,
-			Name:          "Empty "+CALIBRES[calibreIdx]+" magazine",
+			Name:          "Standard "+CALIBRES[calibreIdx]+" magazine",
 			Calibre:       CALIBRES[calibreIdx],
 			ArmorPiercing: 0,
 		},
@@ -204,3 +216,4 @@ func gunCreateStandardAR()Gun{
 func gunCreateStandardSniper()Gun{
 	return generateGun(".308 Winchester",4,1.0,800,1.0,80.0,90.0,2200.0,9.0)
 }
+

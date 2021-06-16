@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main(){
 	ar15 := Gun{
@@ -83,7 +86,7 @@ func main(){
 	t := [5]Clothing{{},tshirt,{},{},{}}
 
 	attacker := Character{
-		Name:             "",
+		Name:             "Attacker",
 		DefaultHealth:    0,
 		Health:           0,
 		Hunger:           0,
@@ -105,11 +108,11 @@ func main(){
 		Dodge:            0,
 		Vision:           0,
 		Type:             0,
-		Armor: a,
+		Armor: t,
 	}
 
 	defender := Character{
-		Name:             "",
+		Name:             "Defender",
 		DefaultHealth:    0,
 		Health:           0,
 		Hunger:           0,
@@ -131,10 +134,17 @@ func main(){
 		Dodge:            0,
 		Vision:           0,
 		Type:             0,
-		Armor: t,
+		Armor: a,
 	}
 
 	ak := gunCreateStandardAK()
+	ak.LoadedMagazine.Rounds+=1000
 	fmt.Println(ak)
-	ak.calculateDamage(CHEST,&attacker,&defender)
+	s := time.Now()
+	for i:=0;i<1000;i++{
+		ak.attack(CHEST,&attacker,&defender)
+	}
+	e := time.Now()
+	fmt.Println(e.Sub(s))
+	fmt.Println(defender.Health)
 }
