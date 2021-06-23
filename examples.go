@@ -6,6 +6,18 @@ import (
 
 func main(){
 
+	hat := Clothing{
+		Name:            "Beanie",
+		ColdProtection:  25,
+		HeatProtection:  0,
+		Bulletproof:     4,
+		MeleeProtection: 6,
+		Weight:          0.25,
+		Durability:      90,
+		BodyPart:        HEAD,
+		Modifier:        Modifier{},
+	}
+
 	tshirt := Clothing{
 		Name:            "T-Shirt",
 		ColdProtection:  8,
@@ -36,8 +48,8 @@ func main(){
 	}
 	exoskeleton.evaluate()
 
-	a := [5]Clothing{{},exoskeleton,{},{},{}}
-	t := [5]Clothing{{},tshirt,{},{},{}}
+	a := [5]Clothing{hat,exoskeleton,{},{},{}}
+	t := [5]Clothing{hat,tshirt,{},{},{}}
 
 	attacker := Character{
 		Name:             "Attacker",
@@ -58,6 +70,7 @@ func main(){
 		LandSpeed:        0,
 		SnowSpeed:        0,
 		ClimbSpeed:       0,
+		Moving: true,
 		Aim:              80,
 		Dodge:            0,
 		Vision:           0,
@@ -84,14 +97,13 @@ func main(){
 		LandSpeed:        0,
 		SnowSpeed:        0,
 		ClimbSpeed:       0,
+		Moving: true,
 		Aim:              0,
 		Dodge:            0,
 		Vision:           0,
 		Type:             0,
 		Armor: t,
 	}
-	fmt.Println(attacker)
-	fmt.Println(defender)
 	ak := gunCreateStandardAK()
 	fmt.Println(ak)
 	ak.evaluate()
@@ -102,6 +114,9 @@ func main(){
 	fmt.Println(sni)
 	sni.evaluate()
 	sho := gunCreateStandardShotgun()
-	fmt.Println(sho)
-	sho.evaluate()
+	sho.LoadedMagazine.Rounds+=1000
+	ar.LoadedMagazine.Rounds+=1000
+	sni.LoadedMagazine.Rounds+=1000
+	sni.attack(HEAD,&attacker,&defender)
+
 }

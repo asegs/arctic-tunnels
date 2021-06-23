@@ -8,7 +8,7 @@ import (
 const MAX_GUN_WEIGHT = 24
 const MAX_GUN_RELOAD_TIME = 4000
 const MAX_GUN_TIME_BETWEEN_SHOTS = 1500
-const BULLET_MISS_HARSHNESS = 1.75
+const BULLET_MISS_HARSHNESS = 2.25
 const NEW_GUN_VARIABILITY = 0.2
 const BULLETPROOF_APPROPRIATE_MODIFIER = 0.5
 const DAMAGE_RANDOMNESS = 0.1
@@ -104,6 +104,7 @@ func getCalibreIdxFromCalibre(calibre string)int{
 	return 0
 }
 //include specific ammo calibre modifiers
+//might want to handle no armor on part
 func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Character)float64{
 	calibreIdx := getCalibreIdxFromCalibre(g.Calibre)
 	dmgModifier := BODY_DAMAGE_MODIFIERS[bodyPart]

@@ -50,7 +50,7 @@ const (
 )
 
 
-const LOG_MODE = BASIC
+const LOG_MODE = DEBUG
 
 const RUBLE = '₽'
 
