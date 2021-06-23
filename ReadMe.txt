@@ -25,7 +25,37 @@ OUTDOOR TERRAIN:
 S - deep snow
 / - ice
 M - climbable rock
-n - non-climbable rock
+u - non-climbable rock
 O - pit
+^ - tent camp
+n - igloos
+G - military base
+f - abandoned facility
+F - operational facility
+& - lava
+
+INDOOR TERRAIN:
+
+  - water
+# - wall
+D - door
+^ - fireplace
+[ - cook stove
+H - chest
+E - crafting table
+
+SIGNS OF LIFE:
+
+@ - you
+* - online player
+x - dead animal
+X - dead human/monster
+a - small animal
+A - large animal
+e - friendly NPC
+m - military NPC
+% - hostile NPC
+! - monster
+? - unknown
 
 
