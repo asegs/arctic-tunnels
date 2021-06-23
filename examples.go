@@ -2,55 +2,9 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 func main(){
-	ar15 := Gun{
-		Name:             "AR15",
-		Calibre:          "5.56 NATO",
-		EffectiveRange:   120,
-		MaxDamage:        45,
-		Accuracy:         80,
-		Recoil:           15,
-		TimeBetweenShots: 250,
-		ReloadTime:       2000,
-		LoadedMagazine:   Magazine{},
-		Weight:           12,
-		Durability:       85,
-	}
-	ar15.evaluate()
-
-	ak47 := Gun{
-		Name:             "AK47",
-		Calibre:          "7.62x39",
-		EffectiveRange:   100,
-		MaxDamage:        100,
-		Accuracy:         50,
-		Recoil:           80,
-		TimeBetweenShots: 100,
-		ReloadTime:       1600,
-		LoadedMagazine:   Magazine{},
-		Weight:           10,
-		Durability:       85,
-	}
-
-	AWP := Gun{
-		Name:             "AWP",
-		Calibre:          ".338 Lapua",
-		EffectiveRange:   1500,
-		MaxDamage:        200,
-		Accuracy:         100,
-		Recoil:           100,
-		TimeBetweenShots: 1200,
-		ReloadTime:       3000,
-		LoadedMagazine:   Magazine{},
-		Weight:           20,
-		Durability:       100,
-	}
-
-	ak47.evaluate()
-	AWP.evaluate()
 
 	tshirt := Clothing{
 		Name:            "T-Shirt",
@@ -136,15 +90,18 @@ func main(){
 		Type:             0,
 		Armor: t,
 	}
-
+	fmt.Println(attacker)
+	fmt.Println(defender)
 	ak := gunCreateStandardAK()
-	ak.LoadedMagazine.Rounds+=1000
 	fmt.Println(ak)
-	s := time.Now()
-	for i:=0;i<1000;i++{
-		ak.attack(CHEST,&attacker,&defender)
-	}
-	e := time.Now()
-	fmt.Println(e.Sub(s))
-	fmt.Println(defender.Health)
+	ak.evaluate()
+	ar := gunCreateStandardAR()
+	fmt.Println(ar)
+	ar.evaluate()
+	sni := gunCreateStandardSniper()
+	fmt.Println(sni)
+	sni.evaluate()
+	sho := gunCreateStandardShotgun()
+	fmt.Println(sho)
+	sho.evaluate()
 }

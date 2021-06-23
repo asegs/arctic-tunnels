@@ -72,6 +72,7 @@ type Character struct {
 	LandSpeed float64 `json:"land_speed"`
 	SnowSpeed float64 `json:"snow_speed"`
 	ClimbSpeed float64 `json:"climb_speed"`
+	Moving bool `json:"moving"`
 
 	Aim float64 `json:"aim"`
 	Dodge float64 `json:"dodge"`

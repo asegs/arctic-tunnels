@@ -12,6 +12,7 @@ const BULLET_MISS_HARSHNESS = 1.75
 const NEW_GUN_VARIABILITY = 0.2
 const BULLETPROOF_APPROPRIATE_MODIFIER = 0.5
 const DAMAGE_RANDOMNESS = 0.1
+const BULLET_DROPOFF_DISTANCE = 10
 
 var BODY_SCORES = [...]float64{1.5,1.0,0.25,0.35,0.45}
 var BODY_MAX_WEIGHTS = [...]float64{8,40,1.5,6,5}
@@ -21,12 +22,14 @@ var BODY_DAMAGE_MODIFIERS = [...]float64{3.0,1.25,0.6,0.5,0.35}
 var GUN_NAME_MODIFIERS = [...]string{"Short-Barrel","Long-Barrel","Light","Hard-Hitting","Imprecise","Sniper","Jerky","Smooth","Easy-Use","Stiff","Light","Sturdy","Rapid-Firing","Slow-Firing"}
 var CONDITIONS = [...]string{"Mint","Well Cared For","Solid","Rusty","Beater","Broken"}
 
-//calibre information
-var CALIBRES = [...]string{".22 LR","9mm","5.56 NATO","7.62x39","7.62 NATO",".45 ACP",".338 Lapua",".50 BMG","6.5 Creedmoor"}
+//calibre information, have range falloff mult
+var CALIBRES = [...]string{".22 LR","9mm","5.56 NATO","7.62x39","7.62 NATO",".45 ACP",".338 Lapua",".50 BMG","6.5 Creedmoor","12 Ga."}
 const l = len(CALIBRES)
-var CALIBRE_BASE_RANGE = [l]float64{75.0,100.0,220.0,250.0,500.0,120.0,1200.0,1750.0,500.0}
-var CALIBRE_BASE_DAMAGE = [l]float64{15.0,45.0,68.0,77.0,105.0,60.0,155.0,210.0,95.0}
-var CALIBRE_RECOIL_LEVEL = [l]float64{3.0,25.0,31.0,55.0,72.0,52.0,90.0,100.0,39.0}
+var CALIBRE_BASE_RANGE = [l]float64{75.0,100.0,220.0,250.0,500.0,120.0,1200.0,1750.0,500.0,75.0}
+var CALIBRE_BASE_DAMAGE = [l]float64{15.0,45.0,68.0,77.0,105.0,60.0,155.0,210.0,95.0,120.0}
+var CALIBRE_RECOIL_LEVEL = [l]float64{3.0,25.0,31.0,55.0,72.0,52.0,90.0,100.0,39.0,90.0}
+//what percent of damage the bullet retains every 10 yards
+var CALIBRE_DAMAGE_FALLOFF = [l]float64{0.9,0.92,0.955,0.965,0.975,0.93,0.99,0.995,0.98,0.7}
 
 //add ammo characteristics with names and modifiers
 
@@ -57,6 +60,14 @@ func (g Gun)evaluate()int{
 	return price
 }
 
+func getStabilityModifier(attacker *Character,defender *Character)float64{
+	attMod := 1.0
+	if attacker.Moving{attMod=0.3}
+	defMod := 1.0
+	if defender.Moving{defMod=0.4}
+	return defMod*attMod
+}
+
 func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *Character)float64{
 	aimModifier := attacker.Aim/100
 	if attacker.isIndoor()!=defender.isIndoor(){
@@ -66,7 +77,8 @@ func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *
 	distanceModifier := getTargetValueNoDir(0,distance,(BULLET_MISS_HARSHNESS*distance)/g.EffectiveRange,false,g.EffectiveRange)
 	durabilityModifier := g.Durability/100
 	bodyPartModifier := BODY_HIT_MODIFIERS[bodyPart]
-	probability := aimModifier*distanceModifier*durabilityModifier*bodyPartModifier
+	movementModifier := getStabilityModifier(attacker,defender)
+	probability := aimModifier*distanceModifier*durabilityModifier*bodyPartModifier*movementModifier
 	if probability>=0.99{
 		probability = 0.99
 	}
@@ -79,18 +91,26 @@ func (g Gun)estimateHitChance(bodyPart BodyArmor,attacker *Character, defender *
 		fmt.Printf("Distance modifier: %f\n",distanceModifier)
 		fmt.Printf("Durability modifier: %f\n",durabilityModifier)
 		fmt.Printf("Body part modifier: %f\n",bodyPartModifier)
+		fmt.Printf("Movement modifier: %f\n",movementModifier)
 	}
 	return probability
 
 }
 
+func getCalibreIdxFromCalibre(calibre string)int{
+	for i:=0;i<l;i++{
+		if calibre==CALIBRES[i]{return i}
+	}
+	return 0
+}
+//include specific ammo calibre modifiers
 func (g Gun)calculateDamage(bodyPart BodyArmor,attacker *Character, defender *Character)float64{
+	calibreIdx := getCalibreIdxFromCalibre(g.Calibre)
 	dmgModifier := BODY_DAMAGE_MODIFIERS[bodyPart]
 	distance := calculateDistance(attacker.Location,defender.Location,attacker.isIndoor())
-	distanceModifier := getTargetValueNoDir(0,distance,(BULLET_MISS_HARSHNESS*distance)/g.EffectiveRange,false,g.EffectiveRange)
+	distanceModifier := math.Pow(CALIBRE_DAMAGE_FALLOFF[calibreIdx],distance/BULLET_DROPOFF_DISTANCE)
 	baseDamage := g.MaxDamage
 	armorDurability := defender.Armor[bodyPart].Durability/100
-	//bulletproof/appropriate same thing, not sep vals
 	bulletproofModifier := (100-defender.Armor[bodyPart].Bulletproof*(armorDurability))/100
 	bulletAppropriateModifier := math.Abs(g.LoadedMagazine.ArmorPiercing-bulletproofModifier*100)/100
 	bulletproofModifier = bulletproofModifier+bulletAppropriateModifier*BULLETPROOF_APPROPRIATE_MODIFIER
@@ -214,5 +234,9 @@ func gunCreateStandardAR()Gun{
 
 func gunCreateStandardSniper()Gun{
 	return generateGun(".308 Winchester",4,1.0,800,1.0,80.0,90.0,2200.0,9.0)
+}
+
+func gunCreateStandardShotgun()Gun{
+	return generateGun("12 Gauge Shotgun",9,1.0,650,1.0,80,40.0,2000.0,10.0)
 }
 
