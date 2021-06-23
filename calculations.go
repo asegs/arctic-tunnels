@@ -8,8 +8,8 @@ import (
 const OUTDOOR_COORD_WIDTH = 10
 const INDOOR_COORD_WIDTH = 1
 
-func getTargetValueNoDir(expectedValue float64,actualValue float64,harshness float64,test bool,spread float64) float64{
-	if LOG_MODE==DEBUG && !test{
+func getTargetValueNoDir(expectedValue float64,actualValue float64,harshness float64,getMax bool,spread float64) float64{
+	if LOG_MODE==DEBUG && !getMax{
 		fmt.Printf("Expected value: %f\n",expectedValue)
 		fmt.Printf("Actual value: %f\n",actualValue)
 		fmt.Printf("Harshness: %f\n",harshness)
@@ -22,7 +22,7 @@ func getTargetValueNoDir(expectedValue float64,actualValue float64,harshness flo
 
 	if harshness==0 { harshness = 0.1 }
 
-	if test {
+	if getMax {
 		result := 1 / (standardDev*math.Sqrt(2*math.Pi))
 		if result==0 { return 0.0001 }
 		return result
@@ -80,7 +80,6 @@ func signToOne(num float64)int{
 	return int(num/math.Abs(num))
 }
 
-//not always working...
 func MaxIndex(m float64,values ... float64)int{
 	for i,value := range values {
 		absValue := math.Abs(value)

@@ -9,3 +9,23 @@ a foggy, misty and dark place not seen by the sun.
 "
 
 Handcraft large scale map, randomly generate small scale terrain on a tile by tile level for fine grained movement/combat/setting up camp.
+Primary map with main features
+Secondary map with secondary features
+Tertiary map with tertiary features
+Quaternary map with elevation
+
+
+
+Map key:
+
+OUTDOOR TERRAIN:
+
+  - water
+. - light snow
+S - deep snow
+/ - ice
+M - climbable rock
+n - non-climbable rock
+O - pit
+
+
