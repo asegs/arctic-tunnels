@@ -47,43 +47,52 @@ func createEmptyRoom(height int,width int,maxTunnels int,maxLength int)[][]rune{
 	for i:=0;i<height;i++{
 		room[i] = make([]rune,width)
 		for b:=0;b<width;b++{
-			room[i][b] = '#'
+			room[i][b] = '|'
 		}
 	}
-	currentRow := rand.Intn(height)
-	currentCol := rand.Intn(width)
 
-	directions := populateDirections()
-	lastDirection := direction{
-		vert: 1,
-		hor:  0,
-	}
-	var randomDirection direction
+	totalMax := maxTunnels
 
-	for maxTunnels > 0{
-		randomDirection = directions[rand.Intn(4)]
-		for !isPerpendicular(randomDirection,lastDirection) {
+	for z:=0;z<5;z++{
+		maxTunnels = totalMax
+
+		currentRow := rand.Intn(height)
+		currentCol := rand.Intn(width)
+
+		fmt.Println(currentCol)
+		fmt.Println(currentRow)
+
+		directions := populateDirections()
+		lastDirection := direction{
+			vert: 1,
+			hor:  0,
+		}
+		var randomDirection direction
+
+		for maxTunnels > 0{
 			randomDirection = directions[rand.Intn(4)]
-		}
-		randomLength := rand.Intn(maxLength)+1
-		tunnelLength := 0
-		fmt.Println(randomDirection)
-
-		for tunnelLength<randomLength{
-			if isExiting(currentRow,currentCol,randomDirection,height,width){
-				break
-			}else{
-				room[currentRow][currentCol] = ' '
-				currentRow += randomDirection.vert
-				currentCol += randomDirection.hor
-				tunnelLength++
+			for !isPerpendicular(randomDirection,lastDirection) {
+				randomDirection = directions[rand.Intn(4)]
+			}
+			randomLength := rand.Intn(maxLength)+1
+			tunnelLength := 0
+			for tunnelLength<randomLength{
+				if isExiting(currentRow,currentCol,randomDirection,height,width){
+					break
+				}else{
+					room[currentRow][currentCol] = ' '
+					currentRow += randomDirection.vert
+					currentCol += randomDirection.hor
+					tunnelLength++
+				}
+			}
+			if tunnelLength>0{
+				lastDirection = randomDirection
+				maxTunnels--
 			}
 		}
-		if tunnelLength>0{
-			lastDirection = randomDirection
-			maxTunnels--
-		}
 	}
+
 	return room
 }
 
@@ -97,6 +106,6 @@ func displayRoom(room [][]rune){
 }
 
 func main(){
-	room := createEmptyRoom(20,40,100,8)
+	room := createEmptyRoom(15,100,50,4)
 	displayRoom(room)
 }
