@@ -105,7 +105,7 @@ func displayRoom(room [][]rune){
 	}
 }
 
-func main(){
-	room := createEmptyRoom(15,100,50,4)
-	displayRoom(room)
-}
+//func main(){
+//	room := createEmptyRoom(15,100,50,4)
+//	displayRoom(room)
+//}

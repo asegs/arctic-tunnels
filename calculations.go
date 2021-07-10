@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strconv"
 )
 
 const OUTDOOR_COORD_WIDTH = 10
@@ -91,4 +92,19 @@ func MaxIndex(m float64,values ... float64)int{
 		}
 	}
 	return -1
+}
+
+func atoiSafe(numString string)int{
+	num,err := strconv.Atoi(numString)
+	if err != nil {
+		return 0
+	}
+	return num
+}
+
+func ctoiSafe(r rune)int{
+	if r>=48 && r <=57 {
+		return int(r-48)
+	}
+	return 0
 }

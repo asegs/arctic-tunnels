@@ -68,6 +68,9 @@ type Character struct {
 	Stamina float64 `json:"stamina"`
 	Location Coordinate `json:"location"`
 	IndoorLocation IndoorCoordinate `json:"indoor_location"`
+	DayLastSlept int `json:"day_last_slept"`
+	
+	Strength float64 `json:"strength"`
 
 	LandSpeed float64 `json:"land_speed"`
 	SnowSpeed float64 `json:"snow_speed"`

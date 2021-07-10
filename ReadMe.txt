@@ -33,6 +33,7 @@ G - military base
 f - abandoned facility
 F - operational facility
 & - lava
+, - slush
 
 INDOOR TERRAIN:
 
