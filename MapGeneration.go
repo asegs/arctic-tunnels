@@ -6,7 +6,7 @@ import (
 )
 
 const MAJOR_TILES_WIDTH = 100
-const MAJOR_TILES_HEIGHT = 25
+const MAJOR_TILES_HEIGHT = 20
 const TILE_SIZE = 20
 
 //.,S,/,M,u,&,,
@@ -32,7 +32,7 @@ func cellInbounds(row int,col int,height int,width int)bool{
 	return (row<height && row>=0) && (col<width && col>=0)
 }
 
-func normalizeTopography(passes int,buildContrastMap bool){
+func generateTiledMap(passes int,buildContrastMap bool){
 	neighborMoves := []int{-1,0,0,1,1,0,0,-1}
 	filename := "Config/topo_map.txt"
 	if buildContrastMap{
@@ -112,9 +112,36 @@ func normalizeTopography(passes int,buildContrastMap bool){
 		}
 
 		Write("Config/smooth_contrast_map.txt",sb.String())
+		return
+	}
+	detailTopoMap := make([][][][]float64,rowCount)
+	for i:=0;i<rowCount;i++{
+		detailTopoMap[i] = make([][][]float64,rowLength)
+		for b:=0;b<rowLength;b++{
+			detailTopoMap[i][b] = make([][]float64,TILE_SIZE)
+			for n:=0;n<TILE_SIZE;n++{
+				detailTopoMap[i][b][n] = make([]float64,TILE_SIZE)
+				for z:=0;z<TILE_SIZE;z++{
+					detailTopoMap[i][b][n][z] = 0.0
+				}
+			}
+		}
+	}
+	//prepare for DEEP nesting
+	//in small tile, each individual cell elevation is: 50% own elevation, 50% weighted (by distance) average elevation of nearby major tiles
+	for i,row := range topoMap{
+		for b,cell := range row {
+			for j := 0;j<8;j+=2 {
+				neighborRow := i + neighborMoves[j]
+				neighborCol := b + neighborMoves[j+1]
+				if cellInbounds(neighborRow, neighborCol, rowCount, rowLength) {
+
+				}
+			}
+		}
 	}
 }
 
 func main(){
-	normalizeTopography(10,false)
+	generateTiledMap(10,false)
 }
