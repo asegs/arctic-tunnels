@@ -128,7 +128,7 @@ func generateTiledMap(passes int,buildContrastMap bool){
 		}
 	}
 	//prepare for DEEP nesting
-	//in small tile, each individual cell elevation is: 50% own elevation, 50% weighted (by distance) average elevation of nearby major tiles
+	//in small tile, each individual cell elevation is: weighted (by distance) average elevation of nearby major tiles, top,right,bottom,left,center (actual center tile of center)
 	for i,row := range topoMap{
 		for b,cell := range row {
 			for j := 0;j<8;j+=2 {
