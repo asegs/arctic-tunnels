@@ -10,6 +10,7 @@ import (
 const MAJOR_TILES_WIDTH = 100
 const MAJOR_TILES_HEIGHT = 20
 const TILE_SIZE = 20
+const RANDOMNESS = 0.2
 
 type topoWeight struct {
 	Height int
@@ -110,9 +111,7 @@ func generateTiledMap(passes int,buildContrastMap bool){
 			}
 		}
 		passes--
-		fmt.Printf("Pass completed, %d passes remaining\n",passes)
 	}
-	printTopoMap(topoMap)
 	if buildContrastMap {
 		sb := strings.Builder{}
 		for _,row:=range topoMap{
@@ -124,6 +123,10 @@ func generateTiledMap(passes int,buildContrastMap bool){
 
 		Write("Config/smooth_contrast_map.txt",sb.String())
 		return
+	}
+	hugeTopoMap := make([][]rune,rowCount*TILE_SIZE)
+	for i:=0;i<rowCount*TILE_SIZE;i++{
+		hugeTopoMap[i] = make([]rune,rowLength*TILE_SIZE)
 	}
 	detailTopoMap := make([][][][]float64,rowCount)
 	detailTerrainMap := make([][][][]rune,rowCount)
@@ -143,6 +146,8 @@ func generateTiledMap(passes int,buildContrastMap bool){
 			}
 		}
 	}
+
+
 	//prepare for DEEP nesting
 	//in small tile, each individual cell elevation is: weighted (by distance) average elevation of nearby major tiles, top,right,bottom,left,center (actual center tile of center)
 	for i,row := range topoMap{
@@ -176,14 +181,23 @@ func generateTiledMap(passes int,buildContrastMap bool){
 							toScore[m] = getTargetValueNoDir(0,math.Abs(places[m]-indivHeight),5.0,false,3.0)
 						}
 						scores[x],_ = floatMax(toScore)
-						scores[x] = scores[x] * baseFreq
+						scores[x] = scores[x] * baseFreq + r1.Float64()*RANDOMNESS
 					}
 					_,index := floatMax(scores)
 					detailTerrainMap[i][b][n][z] = SYMBOLS_OUTDOOR[index]
+					hugeTopoMap[i*TILE_SIZE+n][b*TILE_SIZE+z] = SYMBOLS_OUTDOOR[index]
 				}
 			}
 		}
 	}
+	sb := strings.Builder{}
+	for _,row := range hugeTopoMap {
+		for _,cell := range row {
+			sb.WriteRune(cell)
+		}
+		sb.WriteRune('\n')
+	}
+	Write("Config/total_map.txt",sb.String())
 }
 
 func main(){
