@@ -108,3 +108,15 @@ func ctoiSafe(r rune)int{
 	}
 	return 0
 }
+
+func floatMax(floats []float64)(float64,int){
+	m := math.MaxFloat64*-1.0
+	idx := 0
+	for i,num := range floats {
+		if num > m {
+			m = num
+			idx = i
+		}
+	}
+	return m,idx
+}

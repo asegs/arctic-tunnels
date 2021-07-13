@@ -2,15 +2,24 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
+	"time"
 )
 
 const MAJOR_TILES_WIDTH = 100
 const MAJOR_TILES_HEIGHT = 20
 const TILE_SIZE = 20
 
+type topoWeight struct {
+	Height int
+	Weight int
+}
+
 //.,S,/,M,u,&,,
-var BASE_FREQUENCIES_OUTDOOR = [...]float64{1.0,0.4,0.5,0.3,0.2,0.05,0.6}
+var SYMBOLS_OUTDOOR = [...]rune{'.','S','/','M','u','&',','}
+const SYMBOL_COUNT = len(SYMBOLS_OUTDOOR)
+var BASE_FREQUENCIES_OUTDOOR = [SYMBOL_COUNT]float64{1.0,0.4,0.5,0.3,0.2,0.05,0.6}
 var LIGHT_SNOW_FREQ_MAP =[]float64{4,9}
 var HEAVY_SNOW_FREQ_MAP = []float64{2}
 var ICE_FREQ_MAP = []float64{0,7}
@@ -18,6 +27,8 @@ var CLIMBABLE_ROCK_FREQ_MAP = []float64{2,6}
 var UNCLIMBABLE_ROCK_FREQ_MAP = []float64{4,8}
 var LAVA_FREQ_MAP = []float64{8}
 var SLUSH_FREQ_MAP = []float64{0}
+
+var allFrequencies = [SYMBOL_COUNT][]float64{LIGHT_SNOW_FREQ_MAP,HEAVY_SNOW_FREQ_MAP,ICE_FREQ_MAP,CLIMBABLE_ROCK_FREQ_MAP,UNCLIMBABLE_ROCK_FREQ_MAP,LAVA_FREQ_MAP,SLUSH_FREQ_MAP}
 
 func printTopoMap(m [][]int){
 	for _,row:=range m{
@@ -115,14 +126,19 @@ func generateTiledMap(passes int,buildContrastMap bool){
 		return
 	}
 	detailTopoMap := make([][][][]float64,rowCount)
+	detailTerrainMap := make([][][][]rune,rowCount)
 	for i:=0;i<rowCount;i++{
 		detailTopoMap[i] = make([][][]float64,rowLength)
+		detailTerrainMap[i] = make([][][]rune,rowLength)
 		for b:=0;b<rowLength;b++{
 			detailTopoMap[i][b] = make([][]float64,TILE_SIZE)
+			detailTerrainMap[i][b] = make([][]rune,TILE_SIZE)
 			for n:=0;n<TILE_SIZE;n++{
 				detailTopoMap[i][b][n] = make([]float64,TILE_SIZE)
+				detailTerrainMap[i][b][n] = make([]rune,TILE_SIZE)
 				for z:=0;z<TILE_SIZE;z++{
 					detailTopoMap[i][b][n][z] = 0.0
+					detailTerrainMap[i][b][n][z] = ' '
 				}
 			}
 		}
@@ -131,11 +147,39 @@ func generateTiledMap(passes int,buildContrastMap bool){
 	//in small tile, each individual cell elevation is: weighted (by distance) average elevation of nearby major tiles, top,right,bottom,left,center (actual center tile of center)
 	for i,row := range topoMap{
 		for b,cell := range row {
+			used := 0.0
+			cells := make([]topoWeight,4)
 			for j := 0;j<8;j+=2 {
 				neighborRow := i + neighborMoves[j]
 				neighborCol := b + neighborMoves[j+1]
 				if cellInbounds(neighborRow, neighborCol, rowCount, rowLength) {
-
+					cells[(j/2)].Height = topoMap[i][b]
+					cells[(j/2)].Weight = 1
+					used++
+				}
+			}
+			for n:=0;n<TILE_SIZE;n++{
+				for z:=0;z<TILE_SIZE;z++{
+					eachTileWeight := 1.0/(used+1.0)
+					indivHeight := (1-float64(n)/float64(TILE_SIZE)) * float64(cells[0].Height) * float64(cells[0].Weight) * eachTileWeight //north
+					indivHeight += float64(n)/float64(TILE_SIZE) * float64(cells[2].Height) * float64(cells[2].Weight) * eachTileWeight //south
+					indivHeight += (1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Height) * float64(cells[3].Weight) * eachTileWeight //west
+					indivHeight += float64(z)/float64(TILE_SIZE) * float64(cells[1].Height) * float64(cells[1].Weight) * eachTileWeight //east
+					indivHeight += float64(cell) * eachTileWeight
+					detailTopoMap[i][b][n][z] = indivHeight
+					scores := make([]float64,SYMBOL_COUNT)
+					for x:=0;x<SYMBOL_COUNT;x++{
+						places := allFrequencies[x]
+						baseFreq := BASE_FREQUENCIES_OUTDOOR[x]
+						toScore := make([]float64,len(places))
+						for m:=0;m<len(places);m++{
+							toScore[m] = getTargetValueNoDir(0,math.Abs(places[m]-indivHeight),5.0,false,3.0)
+						}
+						scores[x],_ = floatMax(toScore)
+						scores[x] = scores[x] * baseFreq
+					}
+					_,index := floatMax(scores)
+					detailTerrainMap[i][b][n][z] = SYMBOLS_OUTDOOR[index]
 				}
 			}
 		}
@@ -143,5 +187,8 @@ func generateTiledMap(passes int,buildContrastMap bool){
 }
 
 func main(){
+	start := time.Now()
 	generateTiledMap(10,false)
+	end := time.Now()
+	fmt.Println(end.Sub(start))
 }
