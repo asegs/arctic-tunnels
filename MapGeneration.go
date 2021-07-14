@@ -163,14 +163,16 @@ func generateTiledMap(passes int,buildContrastMap bool){
 					used++
 				}
 			}
+			//math.abs of (n-halfway size * weight) (to check for off map) to get which is closer, then add that number times the height of respective terrain
+			//add (1- math.abs(n-10))/size * self
 			for n:=0;n<TILE_SIZE;n++{
 				for z:=0;z<TILE_SIZE;z++{
+					halfwayDistance := 0.5 * TILE_SIZE
 					eachTileWeight := 1.0/(used+1.0)
-					indivHeight := (1-float64(n)/float64(TILE_SIZE)) * float64(cells[0].Height) * float64(cells[0].Weight) * eachTileWeight //north
-					indivHeight += float64(n)/float64(TILE_SIZE) * float64(cells[2].Height) * float64(cells[2].Weight) * eachTileWeight //south
-					indivHeight += (1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Height) * float64(cells[3].Weight) * eachTileWeight //west
-					indivHeight += float64(z)/float64(TILE_SIZE) * float64(cells[1].Height) * float64(cells[1].Weight) * eachTileWeight //east
-					indivHeight += float64(cell) * eachTileWeight
+					horizontal := math.Max(float64(z)/float64(TILE_SIZE) * float64(cells[1].Height) * float64(cells[1].Weight),(1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Height) * float64(cells[3].Weight))
+					verticalHeight := math.Max(1-((float64(n)-halfwayDistance)/float64(TILE_SIZE)) * float64(cells[0].Height) * float64(cells[0].Weight),(float64(n)-halfwayDistance)/float64(TILE_SIZE) * float64(cells[2].Height) * float64(cells[2].Weight))
+					centerHeight := float64(cell) * eachTileWeight
+
 					detailTopoMap[i][b][n][z] = indivHeight
 					scores := make([]float64,SYMBOL_COUNT)
 					for x:=0;x<SYMBOL_COUNT;x++{
