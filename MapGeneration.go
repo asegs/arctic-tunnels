@@ -10,7 +10,7 @@ import (
 const MAJOR_TILES_WIDTH = 100
 const MAJOR_TILES_HEIGHT = 20
 const TILE_SIZE = 20
-const RANDOMNESS = 0.2
+const RANDOMNESS = 0.9
 
 type topoWeight struct {
 	Height int
@@ -165,13 +165,19 @@ func generateTiledMap(passes int,buildContrastMap bool){
 			}
 			//math.abs of (n-halfway size * weight) (to check for off map) to get which is closer, then add that number times the height of respective terrain
 			//add (1- math.abs(n-10))/size * self
+
+			//terrain too regular, uncommon stuff less likely.  introduce some serious randomness not to score but to if something can spawn at all, for example base value is what it needs to be lower than to spawn
 			for n:=0;n<TILE_SIZE;n++{
 				for z:=0;z<TILE_SIZE;z++{
 					halfwayDistance := 0.5 * TILE_SIZE
-					eachTileWeight := 1.0/(used+1.0)
-					horizontal := math.Max(float64(z)/float64(TILE_SIZE) * float64(cells[1].Height) * float64(cells[1].Weight),(1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Height) * float64(cells[3].Weight))
-					verticalHeight := math.Max(1-((float64(n)-halfwayDistance)/float64(TILE_SIZE)) * float64(cells[0].Height) * float64(cells[0].Weight),(float64(n)-halfwayDistance)/float64(TILE_SIZE) * float64(cells[2].Height) * float64(cells[2].Weight))
-					centerHeight := float64(cell) * eachTileWeight
+					eachTileWeight := 1.0/3.0
+					horizontal := math.Max(float64(z)/float64(TILE_SIZE) * float64(cells[1].Height) * float64(cells[1].Weight),(1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Height) * float64(cells[3].Weight)) * eachTileWeight
+					verticalHeight := math.Max(1-((float64(n)-halfwayDistance)/float64(TILE_SIZE)) * float64(cells[0].Height) * float64(cells[0].Weight),(float64(n)-halfwayDistance)/float64(TILE_SIZE) * float64(cells[2].Height) * float64(cells[2].Weight)) * eachTileWeight
+					horizontalCenter := 1 - math.Abs(halfwayDistance-float64(n)) * 0.5
+					verticalCenter := 1- math.Abs(halfwayDistance-float64(z)) * 0.5
+					centerHeight := float64(cell) * eachTileWeight * (horizontalCenter + verticalCenter)
+
+					indivHeight := horizontal + verticalHeight + centerHeight
 
 					detailTopoMap[i][b][n][z] = indivHeight
 					scores := make([]float64,SYMBOL_COUNT)
@@ -183,7 +189,11 @@ func generateTiledMap(passes int,buildContrastMap bool){
 							toScore[m] = getTargetValueNoDir(0,math.Abs(places[m]-indivHeight),5.0,false,3.0)
 						}
 						scores[x],_ = floatMax(toScore)
-						scores[x] = scores[x] * baseFreq + r1.Float64()*RANDOMNESS
+						randomMultiplier := 1.0 - RANDOMNESS
+						if r1.Float64()<baseFreq{
+							randomMultiplier = 1.0
+						}
+						scores[x] = scores[x] * randomMultiplier
 					}
 					_,index := floatMax(scores)
 					detailTerrainMap[i][b][n][z] = SYMBOLS_OUTDOOR[index]
