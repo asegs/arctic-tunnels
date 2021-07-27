@@ -120,3 +120,15 @@ func floatMax(floats []float64)(float64,int){
 	}
 	return m,idx
 }
+
+func floatMaxVar(floats ...float64)(float64,int){
+	m := math.MaxFloat64*-1.0
+	idx := 0
+	for i,num := range floats {
+		if num > m {
+			m = num
+			idx = i
+		}
+	}
+	return m,idx
+}

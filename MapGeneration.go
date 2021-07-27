@@ -170,23 +170,38 @@ func generateTiledMap(passes int,buildContrastMap bool){
 			for n:=0;n<TILE_SIZE;n++{
 				for z:=0;z<TILE_SIZE;z++{
 					halfwayDistance := 0.5 * TILE_SIZE
-					eachTileWeight := 1.0/3.0
-					horizontal := math.Max(float64(z)/float64(TILE_SIZE) * float64(cells[1].Height) * float64(cells[1].Weight),(1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Height) * float64(cells[3].Weight)) * eachTileWeight
-					verticalHeight := math.Max(1-((float64(n)-halfwayDistance)/float64(TILE_SIZE)) * float64(cells[0].Height) * float64(cells[0].Weight),(float64(n)-halfwayDistance)/float64(TILE_SIZE) * float64(cells[2].Height) * float64(cells[2].Weight)) * eachTileWeight
+					//eachTileWeight := 1.0/3.0
+
+					horizontal,horizontalIdx := floatMaxVar(float64(z)/float64(TILE_SIZE) * float64(cells[1].Weight),(1-float64(z)/float64(TILE_SIZE)) * float64(cells[3].Weight))
+					//horizontal *= eachTileWeight
+					horizontalHeight := float64(cells[horizontalIdx*2 + 1].Height)
+
+					vertical,verticalIdx := floatMaxVar(1-((float64(n)-halfwayDistance)/float64(TILE_SIZE)) * float64(cells[0].Weight),(float64(n)-halfwayDistance)/float64(TILE_SIZE) * float64(cells[2].Weight))
+					//vertical *= eachTileWeight
+					verticalHeight := float64(cells[verticalIdx*2].Height)
+
+
 					horizontalCenter := 1 - math.Abs(halfwayDistance-float64(n)) * 0.5
 					verticalCenter := 1- math.Abs(halfwayDistance-float64(z)) * 0.5
-					centerHeight := float64(cell) * eachTileWeight * (horizontalCenter + verticalCenter)
+					center := horizontalCenter + verticalCenter
+					//center *= eachTileWeight
+					centerHeight := float64(cell)
 
-					indivHeight := horizontal + verticalHeight + centerHeight
+					sumScores := horizontal + vertical + center
 
-					detailTopoMap[i][b][n][z] = indivHeight
+					totalHeight := 0.0
+					totalHeight += (horizontal/sumScores) * horizontalHeight
+					totalHeight += (vertical/sumScores) * verticalHeight
+					totalHeight += (center/sumScores) * centerHeight
+
+					detailTopoMap[i][b][n][z] = totalHeight
 					scores := make([]float64,SYMBOL_COUNT)
 					for x:=0;x<SYMBOL_COUNT;x++{
 						places := allFrequencies[x]
 						baseFreq := BASE_FREQUENCIES_OUTDOOR[x]
 						toScore := make([]float64,len(places))
 						for m:=0;m<len(places);m++{
-							toScore[m] = getTargetValueNoDir(0,math.Abs(places[m]-indivHeight),5.0,false,3.0)
+							toScore[m] = getTargetValueNoDir(0,math.Abs(places[m]-totalHeight),5.0,false,3.0)
 						}
 						scores[x],_ = floatMax(toScore)
 						randomMultiplier := 1.0 - RANDOMNESS
